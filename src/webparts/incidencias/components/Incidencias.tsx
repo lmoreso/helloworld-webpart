@@ -15,11 +15,31 @@ import { IIncidencia } from '../IncidenciasWebPart';
 import { Version, Environment, EnvironmentType } from '@microsoft/sp-core-library';
 import SPServices from '../../../services/SPServices';
 import { TaxonomyPicker, IPickerTerms } from "@pnp/spfx-controls-react/lib/TaxonomyPicker";
+import Dialog, { DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
 
 
 export default class Incidencias extends React.Component<IIncidenciasProps, IIncidenciasState> {
   private nuevoTitulo: string;
   private nuevaDescripcion: string;
+
+  private _dlgBorrar(titulo: string, texto: string): void {
+    this.setState({
+      dlgTexto: texto,
+      dlgTitulo: titulo,
+      dlgShow: true,
+      dlgShowBtnBorrar: true
+    });
+
+  }
+
+  private _messageBox(titulo: string, texto: string): void {
+    this.setState({
+      dlgTexto: texto,
+      dlgTitulo: titulo,
+      dlgShow: true,
+      dlgShowBtnBorrar: false
+    });
+  }
 
   private _getNewId(): number {
     let newID = 0;
@@ -45,27 +65,34 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
       }
 
     } else {
-      alert("No hay ningún registro seleccionado, no puidor actualizar nada.");
+      this._messageBox("ATENCION", "No hay ningún registro seleccionado, no puidor actualizar nada.");
     }
     this._onClosePanelEdit();
   }
 
-  private _borrarIncidencia(): any {
+  private _BorrarIncidencia(): any {
+    let laIncidencia = this._getSelectionDetails();
+    if (laIncidencia) {
+      if (Environment.type != EnvironmentType.Local) {
+        SPServices.deleteItemFromSPList("Listado de Incidencias", laIncidencia.Id, this.context)
+          .then((result) => {
+            // reenumeramos la colección
+            this._borrarElemento(laIncidencia);
+          });
+      } else {
+        this._borrarElemento(laIncidencia);
+      }
+
+    }
+    this.setState({ dlgShow: false });
+  }
+  private _menuBorrarIncidencia(): any {
     // recuperamos el Id. seleccionado
     let incidenciaABorrar = this._getSelectionDetails();
     if (incidenciaABorrar) {
-      if (Environment.type != EnvironmentType.Local) {
-        SPServices.deleteItemFromSPList("Listado de Incidencias", incidenciaABorrar.Id, this.context)
-          .then((result) => {
-            // reenumeramos la colección
-            this._borrarElemento(incidenciaABorrar);
-          });
-      } else {
-        this._borrarElemento(incidenciaABorrar);
-      }
-
+      this._dlgBorrar("Atención", "Quieres borrar la incidencia con Id=[" + incidenciaABorrar.Id + "]?");
     } else {
-      alert("No hay ningún registro seleccionado, no puidor borrar nada.");
+      this._messageBox("Atención", "No hay ningún registro seleccionado, no puidor borrar nada.");
     }
 
 
@@ -141,7 +168,7 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
       showPanelEdit: false,
       showPanelDelete: false,
       incidenciaSelected: undefined,
-      showDialog: false,
+      dlgShow: false,
       incidencias: props.incidencias,
     };
 
@@ -157,9 +184,11 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
     this._onShowPanelNew = this._onShowPanelNew.bind(this);
     this._onClosePanelEdit = this._onClosePanelEdit.bind(this);
     this._onShowPanelEdit = this._onShowPanelEdit.bind(this);
-    this._borrarIncidencia = this._borrarIncidencia.bind(this);
+    this._menuBorrarIncidencia = this._menuBorrarIncidencia.bind(this);
     this._guardarIncidencia = this._guardarIncidencia.bind(this);
     this._guardarNuevaIncidencia = this._guardarNuevaIncidencia.bind(this);
+    this._BorrarIncidencia = this._BorrarIncidencia.bind(this);
+
   }
 
 
@@ -196,6 +225,26 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
   public render(): React.ReactElement<IIncidenciasProps> {
     return (
       <div>
+        <Dialog
+          hidden={!this.state.dlgShow}
+          dialogContentProps={{
+            type: DialogType.normal,
+            title: this.state.dlgTitulo,
+            subText: this.state.dlgTexto
+          }}
+          modalProps={{
+            titleAriaId: 'myLabelId',
+            subtitleAriaId: 'mySubTextId',
+            isBlocking: true,
+            containerClassName: 'ms-dialogMainOverride'
+          }}
+        >
+          <DialogFooter>
+            {(this.state.dlgShowBtnBorrar) && (<PrimaryButton onClick={this._BorrarIncidencia} text="Borrar" />)}
+            <DefaultButton onClick={() => { this.setState({ dlgShow: false }); }} text="Cerrar" />
+          </DialogFooter>
+        </Dialog>
+
         <WebPartTitle
           displayMode={DisplayMode.Read}
           title={"Listado de Incidencias"}
@@ -333,7 +382,7 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
         iconProps: {
           iconName: 'SortLines'
         },
-        onClick: () => alert('Sort')
+        onClick: () => this._messageBox("ATENCION", 'Has clicado el menú Sort')
       },
       {
         key: 'info',
@@ -342,7 +391,7 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
           iconName: 'Info'
         },
         iconOnly: true,
-        onClick: () => alert('Info')
+        onClick: () => this._messageBox("ATENCION", 'Has clicado el menú Info')
       }
     ];
   }
@@ -354,7 +403,7 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
         iconProps: {
           iconName: 'SortLines'
         },
-        onClick: () => alert('Sort')
+        onClick: () => this._messageBox("ATENCION", 'Has clicado el menú Sort')
       },
       {
         key: 'info',
@@ -363,7 +412,7 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
           iconName: 'Info'
         },
         iconOnly: true,
-        onClick: () => alert('Info')
+        onClick: () => this._messageBox("ATENCION", 'Has clicado el menú Info')
       }
     ];
   }
@@ -391,7 +440,7 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
         iconProps: {
           iconName: 'Delete'
         },
-        onClick: () => this._borrarIncidencia()
+        onClick: () => this._menuBorrarIncidencia()
       }
     ];
   }

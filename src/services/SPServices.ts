@@ -23,7 +23,7 @@ export default class SPServices {
     }
 
     public static deleteItemFromSPList(listName: string, itemId: number, context: WebPartContext): Promise<any> {
-        sp.setup({spfxContext: context});
+        //sp.setup({spfxContext: context});
         let list = sp.web.lists.getByTitle(listName);
         return (list.items.getById(itemId).delete().then((result) => {
             return result;
@@ -33,7 +33,7 @@ export default class SPServices {
     }
 
     public static insertItemToSPList(listName: string, item: IIncidencia, context: WebPartContext): Promise<any> {
-        sp.setup({spfxContext: context});
+        //sp.setup({spfxContext: context});
         let list = sp.web.lists.getByTitle(listName);
 
         return (list.items.add(item).then((iar: ItemAddResult) => {

@@ -11,6 +11,9 @@ export interface IIncidenciasState {
   showPanelEdit: boolean;
   showPanelDelete: boolean;
   incidenciaSelected: IIncidencia;
-  showDialog: boolean;
+  dlgShow: boolean;
+  dlgTitulo?: string;
+  dlgTexto?: string;
+  dlgShowBtnBorrar?: boolean;
   incidencias: IIncidencia[];
 }
