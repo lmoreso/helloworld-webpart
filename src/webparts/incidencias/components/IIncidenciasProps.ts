@@ -15,5 +15,6 @@ export interface IIncidenciasState {
   dlgTitulo?: string;
   dlgTexto?: string;
   dlgShowBtnBorrar?: boolean;
+  dlgLitBtnCerrar?: string;
   incidencias: IIncidencia[];
 }

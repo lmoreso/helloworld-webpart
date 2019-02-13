@@ -4,6 +4,7 @@ import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dia
 import { PrimaryButton, DefaultButton } from 'office-ui-fabric-react/lib/Button';
 
 export default class Utiles {
+  public static webPartVersion: string = "1.0.0.4";
   public static parseFechas(unaFecha: any): string {
     var sFecha = "";
     if (unaFecha.toDateString) {
@@ -13,7 +14,6 @@ export default class Utiles {
     }
 
     return (sFecha);
-
   }
 }
 

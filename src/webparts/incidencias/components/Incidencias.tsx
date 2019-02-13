@@ -27,7 +27,8 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
       dlgTexto: texto,
       dlgTitulo: titulo,
       dlgShow: true,
-      dlgShowBtnBorrar: true
+      dlgShowBtnBorrar: true,
+      dlgLitBtnCerrar: "Cancelar"
     });
 
   }
@@ -37,7 +38,8 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
       dlgTexto: texto,
       dlgTitulo: titulo,
       dlgShow: true,
-      dlgShowBtnBorrar: false
+      dlgShowBtnBorrar: false,
+      dlgLitBtnCerrar: "Cerrar"
     });
   }
 
@@ -188,6 +190,8 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
     this._guardarIncidencia = this._guardarIncidencia.bind(this);
     this._guardarNuevaIncidencia = this._guardarNuevaIncidencia.bind(this);
     this._BorrarIncidencia = this._BorrarIncidencia.bind(this);
+    this._onBtnCloseDlg = this._onBtnCloseDlg.bind(this);
+    
 
   }
 
@@ -241,13 +245,13 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
         >
           <DialogFooter>
             {(this.state.dlgShowBtnBorrar) && (<PrimaryButton onClick={this._BorrarIncidencia} text="Borrar" />)}
-            <DefaultButton onClick={() => { this.setState({ dlgShow: false }); }} text="Cerrar" />
+            <DefaultButton onClick={this._onBtnCloseDlg} text={this.state.dlgLitBtnCerrar} />
           </DialogFooter>
         </Dialog>
 
         <WebPartTitle
           displayMode={DisplayMode.Read}
-          title={"Listado de Incidencias"}
+          title={"Listado de Incidencias (versión " + Utiles.webPartVersion + ")"}
           updateProperty={null}
         />
         <CommandBar
@@ -443,5 +447,9 @@ export default class Incidencias extends React.Component<IIncidenciasProps, IInc
         onClick: () => this._menuBorrarIncidencia()
       }
     ];
+  }
+
+  private _onBtnCloseDlg() {
+    this.setState({ dlgShow: false });
   }
 }
